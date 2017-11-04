@@ -1,0 +1,36 @@
+<link rel="import" href="../polymer/polymer-element.html">
+
+<dom-module id="tm-twisty-puzzle">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <h2>Hello [[prop1]]!</h2>
+  </template>
+
+  <script>
+    /**
+     * `tm-twisty-puzzle`
+     * render and animate twisty puzzles
+     *
+     * @customElement
+     * @polymer
+     * @demo demo/index.html
+     */
+    class TmTwistyPuzzle extends Polymer.Element {
+      static get is() { return 'tm-twisty-puzzle'; }
+      static get properties() {
+        return {
+          prop1: {
+            type: String,
+            value: 'tm-twisty-puzzle'
+          }
+        };
+      }
+    }
+
+    window.customElements.define(TmTwistyPuzzle.is, TmTwistyPuzzle);
+  </script>
+</dom-module>
