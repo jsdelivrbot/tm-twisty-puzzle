@@ -11,19 +11,12 @@
         display: inline-block;
       }
       .cube {
+        display: inline-block;
         width: 500px;
         height: 500px;
-      }
-      cavas {
-        backgroud:white;
-        border:solid red 10px;
+        border:solid lightgrey 2px;
       }
     </style>
-    <paper-button raised on-click="reset">Reset</paper-button>
-    <paper-button raised on-click="run">Run</paper-button>
-    <h4>[[moves]]</h4>
-    <paper-input label="Setup Moves" value="{{setup}}"></paper-input>
-    <paper-input label="Algorithm" value="{{moves}}"></paper-input>
     <div id="cube" class="cube" data-moves$="[[setup]]"></div>
   </template>
 
@@ -34,6 +27,12 @@
       }
       static get properties() {
         return {
+          size: {
+            type:Number,
+            notify:true,
+            reflectToAttribute: true,
+            value:3
+          },
           setup: {
             type: String,
             notify: true,
@@ -45,9 +44,6 @@
             notify: true,
             reflectToAttribute: true,
             value: "x x x x x y y y z z z z z z"
-          },
-          toggleIcon: {
-            type: String
           }
         }
       }
@@ -71,12 +67,26 @@
       turn() {
 
       }
+      _renderComplete() {
+        var self = this;
+        setTimeout(function() {
+          self.cube.pause();
+        }, 2000);
+      }
       _build() {
         var self = this;
         console.log('Creating Cube');
         var el = self.shadowRoot.querySelector('#cube');
-        this.cube = $(el).cube({type:3,animation: {delay: 1000}});
+        this.cube = $(el).cube({
+          type:this.size,
+          animation: {delay: 0},
+          background:0xFFFFFF,
+          onComplete:function() {
+            self._renderComplete();
+          }
+        });
       }
+
       ready() {
         super.ready();
         this._build();

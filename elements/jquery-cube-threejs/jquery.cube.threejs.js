@@ -27,6 +27,8 @@ $.fn.cube = function(options) {
     var _cube = [];
     var _pivot = null;
 
+    _ref.executionComplete = 0;
+
     //extend default options
     options = $.extend(true, {
         type: 3,
@@ -56,11 +58,16 @@ $.fn.cube = function(options) {
         onComplete: $.noop
     }, options);
 
-  _ref.delay = function(delay) {
-    console.log('ANIMATE TURN BEFORE: ', options.animation.delay);
-    options.animation.delay = delay;
-    console.log('ANIMATE TURN AFTER: ', options.animation.delay);
-  }
+    _ref.pause = function() {
+      console.log('Pausing rendering function');
+      _ref.executionComplete = 1;
+    }
+
+    _ref.delay = function(delay) {
+  console.log('ANIMATE TURN BEFORE: ', options.animation.delay);
+  options.animation.delay = delay;
+  console.log('ANIMATE TURN AFTER: ', options.animation.delay);
+}
 
 	//method for resetting the cube back to its default state
 	_ref.reset = function(){
@@ -579,7 +586,7 @@ $.fn.cube = function(options) {
         })
 
         //animate turn
-        var animateTurn = $({rotation: _pivot.rotation[property]}).animate(
+        $({rotation: _pivot.rotation[property]}).animate(
             {
                 rotation: _pivot.rotation[property] + (rotation * radian)
             },
@@ -597,11 +604,17 @@ $.fn.cube = function(options) {
             }
         );
 
-        console.log('ANIMATE TURN: ', animateTurn, options.animation.delay);
     }
 
     //method for executing a set of moves
     _ref.execute = function(moves){
+
+      if (_ref.executionComplete === 1) {
+        console.log('Restarting rendering function');
+
+        _ref.executionComplete = 0;
+        render()
+      }
 
         //parse moves from notation into individual moves
         moves = parse(moves);
@@ -634,9 +647,13 @@ $.fn.cube = function(options) {
         _ref.data("move-stack", moves);
 
         if(move)
-            _ref.turn(move);
+        {
+          _ref.turn(move);
+        }
         else
-            options.onComplete(_ref);
+        {
+          options.onComplete(_ref);
+        }
 	})
 
     //method for parsing moves string into individual moves
@@ -858,13 +875,18 @@ $.fn.cube = function(options) {
         }
 
     }
-
+    // var done = 0;
+    // setTimeout(function() {
+    //   done = 1;
+    // },3000);
     //method for handling rendering
     function render(){
-
+      //console.log('Rendering... ');
+      if (_ref.executionComplete === 0) {
         requestAnimationFrame(render);
         _renderer.render(_scene, _camera);
         _camera.lookAt(_pivot.position);
+      }
     }
 
     //method for retrieving cubits by layer
