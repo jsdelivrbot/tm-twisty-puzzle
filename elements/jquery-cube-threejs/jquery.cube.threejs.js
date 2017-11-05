@@ -56,6 +56,12 @@ $.fn.cube = function(options) {
         onComplete: $.noop
     }, options);
 
+  _ref.delay = function(delay) {
+    console.log('ANIMATE TURN BEFORE: ', options.animation.delay);
+    options.animation.delay = delay;
+    console.log('ANIMATE TURN AFTER: ', options.animation.delay);
+  }
+
 	//method for resetting the cube back to its default state
 	_ref.reset = function(){
 
@@ -573,7 +579,7 @@ $.fn.cube = function(options) {
         })
 
         //animate turn
-        $({rotation: _pivot.rotation[property]}).animate(
+        var animateTurn = $({rotation: _pivot.rotation[property]}).animate(
             {
                 rotation: _pivot.rotation[property] + (rotation * radian)
             },
@@ -591,6 +597,7 @@ $.fn.cube = function(options) {
             }
         );
 
+        console.log('ANIMATE TURN: ', animateTurn, options.animation.delay);
     }
 
     //method for executing a set of moves

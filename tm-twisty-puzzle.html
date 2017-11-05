@@ -1,61 +1,92 @@
-<link href="/css/master.css">
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-button/paper-button.html">
+
 <dom-module id="tm-twisty-puzzle">
+
   <template>
     <style>
       :host {
-        display: block;
+        display: inline-block;
       }
-
       .cube {
-				width: 500px;
-				height: 500px;
-			}
+        width: 500px;
+        height: 500px;
+      }
+      cavas {
+        backgroud:white;
+        border:solid red 10px;
+      }
     </style>
-    <h2>Solving Cubes</h2>
-    <!-- <div id="aaa" class="cube" data-moves="(U R U' R') (U R U' R') (U R U' R') (U R U' R') (U R U' R') (U R U' R')"></div> -->
-    <div id="bbb" class="cube" data-moves$="[[moves]]"></div>
+    <paper-button raised on-click="reset">Reset</paper-button>
+    <paper-button raised on-click="run">Run</paper-button>
+    <h4>[[moves]]</h4>
+    <paper-input label="Setup Moves" value="{{setup}}"></paper-input>
+    <paper-input label="Algorithm" value="{{moves}}"></paper-input>
+    <div id="cube" class="cube" data-moves$="[[setup]]"></div>
   </template>
 
-
-  <script src="elements/jquery-cube-threejs/jquery.cube.threejs.js"></script>
-
   <script>
-    /**
-     * `tm-twisty-puzzle`
-     * render and animate twisty puzzles
-     *
-     * @customElement
-     * @polymer
-     * @demo demo/index.html
-     */
-    class TmTwistyPuzzle extends Polymer.Element {
-      static get is() { return 'tm-twisty-puzzle'; }
+    class TwistyPuzzle extends Polymer.Element {
+      static get is() {
+        return 'tm-twisty-puzzle';
+      }
       static get properties() {
         return {
+          setup: {
+            type: String,
+            notify: true,
+            reflectToAttribute: true,
+            value: "(R R L' L') y (R R L' L') z (R R L' L')"
+          },
           moves: {
             type: String,
-            value: "(R R L' L') y (R R L' L') z (R R L' L') x x x x x y y y z z z z z z"
+            notify: true,
+            reflectToAttribute: true,
+            value: "x x x x x y y y z z z z z z"
+          },
+          toggleIcon: {
+            type: String
           }
-        };
+        }
+      }
+      reset() {
+        this.cube.reset();
+        var ms = this.cube.data("move-stack");
+        console.log('MOVE STACK: ', ms);
+        if (ms) {
+          while(ms.length > 0) {
+              ms.pop();
+          }
+        }
+        this.cube.delay(0);
+        this.cube.execute(this.setup);
+
+      }
+      run() {
+        this.cube.delay(1000);
+        this.cube.execute(this.moves);
+      }
+      turn() {
+
+      }
+      _build() {
+        var self = this;
+        console.log('Creating Cube');
+        var el = self.shadowRoot.querySelector('#cube');
+        this.cube = $(el).cube({type:3,animation: {delay: 1000}});
+      }
+      ready() {
+        super.ready();
+        this._build();
       }
       constructor() {
         super();
-        var self = this;
-        $(document).ready(function() {
-          setTimeout(function() {
-            console.log('Document Ready');
-            var id = 'bbb';
-            var el = self.shadowRoot.querySelector('#' + id)
-            //var el = Polymer.dom(this.root).querySelector("#aaa");
-            console.log('Element: ', el);
-            $(el).cube({type:3,animation: {delay: 1000}});
-          }, 50);
-        });
       }
     }
 
-    window.customElements.define(TmTwistyPuzzle.is, TmTwistyPuzzle);
-
-
+    customElements.define(TwistyPuzzle.is, TwistyPuzzle);
   </script>
+
 </dom-module>
