@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Example 3x3 Cube</title>
+		<script src="../elements/jquery-cube-threejs/jquery.min.js"></script>
+		<script src="../elements/jquery-cube-threejs/three.min.js"></script>
+		<script src="../elements/jquery-cube-threejs/CanvasRenderer.js"></script>
+		<script src="../elements/jquery-cube-threejs/Projector.js"></script>
+		<script src="../elements/jquery-cube-threejs/jquery.cube.threejs.js"></script>
+		<script>
+			$(function(){
+				$(".cube").cube({type:3,animation: {delay: 250}});
+			});
+		</script>
+
+		<style>
+			.cube {
+				width: 500px;
+				height: 500px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="cube" data-moves="(U R U' R') (U R U' R') (U R U' R') (U R U' R') (U R U' R') (U R U' R')"></div>
+	</body>
+</html>

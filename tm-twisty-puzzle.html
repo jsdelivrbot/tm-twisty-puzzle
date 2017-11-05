@@ -1,12 +1,23 @@
+<link href="/css/master.css">
 <dom-module id="tm-twisty-puzzle">
   <template>
     <style>
       :host {
         display: block;
       }
+
+      .cube {
+				width: 500px;
+				height: 500px;
+			}
     </style>
-    <h2>Hello [[prop1]]!</h2>
+    <h2>Solving Cubes</h2>
+    <!-- <div id="aaa" class="cube" data-moves="(U R U' R') (U R U' R') (U R U' R') (U R U' R') (U R U' R') (U R U' R')"></div> -->
+    <div id="bbb" class="cube" data-moves$="[[moves]]"></div>
   </template>
+
+
+  <script src="elements/jquery-cube-threejs/jquery.cube.threejs.js"></script>
 
   <script>
     /**
@@ -21,14 +32,30 @@
       static get is() { return 'tm-twisty-puzzle'; }
       static get properties() {
         return {
-          prop1: {
+          moves: {
             type: String,
-            value: 'tm-twisty-puzzle'
+            value: "(R R L' L') y (R R L' L') z (R R L' L') x x x x x y y y z z z z z z"
           }
         };
+      }
+      constructor() {
+        super();
+        var self = this;
+        $(document).ready(function() {
+          setTimeout(function() {
+            console.log('Document Ready');
+            var id = 'bbb';
+            var el = self.shadowRoot.querySelector('#' + id)
+            //var el = Polymer.dom(this.root).querySelector("#aaa");
+            console.log('Element: ', el);
+            $(el).cube({type:3,animation: {delay: 1000}});
+          }, 50);
+        });
       }
     }
 
     window.customElements.define(TmTwistyPuzzle.is, TmTwistyPuzzle);
+
+
   </script>
 </dom-module>
