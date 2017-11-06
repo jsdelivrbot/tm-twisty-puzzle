@@ -27,6 +27,12 @@
       }
       static get properties() {
         return {
+          jobs: {
+            type:Number,
+            notify:true,
+            reflectToAttribute: true,
+            value:3
+          },
           size: {
             type:Number,
             notify:true,

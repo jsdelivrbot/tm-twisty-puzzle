@@ -60,14 +60,14 @@ $.fn.cube = function(options) {
 
     _ref.pause = function() {
       console.log('Pausing rendering function');
-      _ref.executionComplete = 1;
+      //_ref.executionComplete = 1;
     }
 
     _ref.delay = function(delay) {
-  console.log('ANIMATE TURN BEFORE: ', options.animation.delay);
-  options.animation.delay = delay;
-  console.log('ANIMATE TURN AFTER: ', options.animation.delay);
-}
+      console.log('ANIMATE TURN BEFORE: ', options.animation.delay);
+      options.animation.delay = delay;
+      console.log('ANIMATE TURN AFTER: ', options.animation.delay);
+    }
 
 	//method for resetting the cube back to its default state
 	_ref.reset = function(){
@@ -609,13 +609,6 @@ $.fn.cube = function(options) {
     //method for executing a set of moves
     _ref.execute = function(moves){
 
-      if (_ref.executionComplete === 1) {
-        console.log('Restarting rendering function');
-
-        _ref.executionComplete = 0;
-        render()
-      }
-
         //parse moves from notation into individual moves
         moves = parse(moves);
 
@@ -626,7 +619,14 @@ $.fn.cube = function(options) {
 
         console.info(moves)
 
-		_ref.data("move-stack", moves);
+		      _ref.data("move-stack", moves);
+
+        if (_ref.executionComplete === 1) {
+          console.log('Restarting rendering function');
+
+          _ref.executionComplete = 0;
+          render()
+        }
 
         if(!ms)
             _ref.trigger("next-move");
@@ -881,11 +881,19 @@ $.fn.cube = function(options) {
     // },3000);
     //method for handling rendering
     function render(){
-      //console.log('Rendering... ');
       if (_ref.executionComplete === 0) {
+        //console.log('Rendering... ');
         requestAnimationFrame(render);
         _renderer.render(_scene, _camera);
         _camera.lookAt(_pivot.position);
+      }
+
+      var ms = _ref.data("move-stack");
+      //console.log('MOVE STACK: ', ms);
+      if (ms === undefined || ms === null || ms.length === 0) {
+        setTimeout(function() {
+          _ref.executionComplete = 1;
+        }, options.animation.delay+100);
       }
     }
 
