@@ -89,6 +89,9 @@
         this.cube.delay(resetDelay);
         this.cube.execute(this.setup);
       }
+      finish() {
+        this.cube.delay(0);
+      }
       run() {
         //this.cube.delay(this.algDelay);
         const runDelay = this.algDelay;

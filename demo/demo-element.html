@@ -51,6 +51,7 @@
       <paper-button raised on-click="_reset">Reset</paper-button>
       <paper-button raised on-click="_look">Look</paper-button>
       <paper-button raised on-click="_run">Run</paper-button>
+      <paper-button raised on-click="_finish">Finish</paper-button>
       <paper-checkbox class="small" checked="{{powerSaveMode}}">Power Save</paper-checkbox>
       <div class="inputs">
         <paper-input class="small" label="Size" value="{{size}}" type="number"></paper-input>
@@ -112,6 +113,9 @@
             value: "R U R' F' R U R' U' R' F R R U' R'"
           }
         }
+      }
+      _finish() {
+        this.$.puzzle.finish();
       }
       _reset() {
         this.$.puzzle.reset();
