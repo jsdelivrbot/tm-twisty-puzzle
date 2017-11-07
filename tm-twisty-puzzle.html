@@ -1,7 +1,5 @@
 <link rel="import" href="../polymer/polymer-element.html">
 <link rel="import" href="../iron-icon/iron-icon.html">
-<link rel="import" href="../paper-input/paper-input.html">
-<link rel="import" href="../paper-button/paper-button.html">
 
 <dom-module id="tm-twisty-puzzle">
 
@@ -12,8 +10,8 @@
       }
       .cube {
         display: inline-block;
-        width: 500px;
-        height: 500px;
+        width: 360px;
+        height: 360px;
         border:solid lightgrey 2px;
       }
     </style>
@@ -27,17 +25,30 @@
       }
       static get properties() {
         return {
-          jobs: {
-            type:Number,
-            notify:true,
-            reflectToAttribute: true,
-            value:3
-          },
           size: {
             type:Number,
             notify:true,
             reflectToAttribute: true,
             value:3
+          },
+          powerSaveMode: {
+            type:Boolean,
+            notify:true,
+            reflectToAttribute: true,
+            value:1,
+            observer:'_powerSaveModeChanged'
+          },
+          algDelay: {
+            type:Number,
+            notify:true,
+            reflectToAttribute: true,
+            value:1000
+          },
+          inspectDelay: {
+            type:Number,
+            notify:true,
+            reflectToAttribute: true,
+            value:2000
           },
           setup: {
             type: String,
@@ -45,12 +56,23 @@
             reflectToAttribute: true,
             value: "(R R L' L') y (R R L' L') z (R R L' L')"
           },
-          moves: {
+          look: {
+            type: String,
+            notify: true,
+            reflectToAttribute: true,
+            value: "(R R L' L') y (R R L' L') z (R R L' L')"
+          },
+          alg: {
             type: String,
             notify: true,
             reflectToAttribute: true,
             value: "x x x x x y y y z z z z z z"
           }
+        }
+      }
+      _powerSaveModeChanged() {
+        if (this.cube) {
+          this.cube.setPowerSaveMode(this.powerSaveMode);
         }
       }
       reset() {
@@ -62,22 +84,22 @@
               ms.pop();
           }
         }
-        this.cube.delay(0);
+        //this.cube.delay(0);
+        const resetDelay = 0;
+        this.cube.delay(resetDelay);
         this.cube.execute(this.setup);
-
       }
       run() {
-        this.cube.delay(1000);
-        this.cube.execute(this.moves);
+        //this.cube.delay(this.algDelay);
+        const runDelay = this.algDelay;
+        this.cube.delay(runDelay);
+        this.cube.execute(this.alg);
       }
-      turn() {
-
-      }
-      _renderComplete() {
-        var self = this;
-        setTimeout(function() {
-          self.cube.pause();
-        }, 2000);
+      inspectCube() {
+        //this.cube.delay(this.inspectDelay);
+        const inspectDelay = parseInt(this.inspectDelay);
+        this.cube.delay(inspectDelay);
+        this.cube.execute(this.look);
       }
       _build() {
         var self = this;
@@ -88,7 +110,7 @@
           animation: {delay: 0},
           background:0xFFFFFF,
           onComplete:function() {
-            self._renderComplete();
+            console.log('Algorithm has completed.');
           }
         });
       }

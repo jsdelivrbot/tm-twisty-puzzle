@@ -1,8 +1,10 @@
 <link rel="import" href="../../polymer/polymer.html">
 <link rel="import" href="../../iron-icons/iron-icons.html">
-<link rel="import" href="../icon-toggle.html">
 <link rel="import" href="../elements.html">
 <link rel="import" href="../tm-twisty-puzzle.html">
+<link rel="import" href="../../paper-input/paper-input.html">
+<link rel="import" href="../../paper-button/paper-button.html">
+<link rel="import" href="../../paper-checkbox/paper-checkbox.html">
 
 <dom-module id="demo-element">
   <template>
@@ -12,22 +14,53 @@
       }
       tm-twisty-puzzle {
         //width:100%;
+        float:left;
       }
       .controls {
+        float:left;
+        display:inline-block;
         box-sizing: border-box;
         width:50%;
+      }
+      .small {
+        width:50%;
+      }
+      .large {
+        width:100%;
+      }
+      paper-input {
+        float:left;
+      }
+      div.inputs {
+        width:100%;
+        padding:10px;
+      }
+      paper-checkbox {
+        width:100px;
+        float:left;
+        display: inline-block;
+        padding:30px 0 0px 10px;
       }
     </style>
 
     <h3>Twisty Puzzle</h3>
+    <tm-twisty-puzzle id="puzzle" size="[[size]]" power-save-mode="[[powerSaveMode]]"
+                      alg-delay="[[algDelay]]" inspect-delay="[[inspectDelay]]"
+                      setup="[[setup]]" look="[[look]]" alg="[[alg]]"></tm-twisty-puzzle>
     <div class="controls">
       <paper-button raised on-click="_reset">Reset</paper-button>
+      <paper-button raised on-click="_look">Look</paper-button>
       <paper-button raised on-click="_run">Run</paper-button>
-      <h4>[[moves]]</h4>
-      <paper-input label="Setup Moves" value="{{setup}}"></paper-input>
-      <paper-input label="Algorithm" value="{{moves}}"></paper-input>
+      <paper-checkbox class="small" checked="{{powerSaveMode}}">Power Save</paper-checkbox>
+      <div class="inputs">
+        <paper-input class="small" label="Size" value="{{size}}" type="number"></paper-input>
+        <paper-input class="small" label="Inspect Delay" value="{{inspectDelay}}" type="number"></paper-input>
+        <paper-input class="small" label="algorithm Delay" value="{{algDelay}}" type="number"></paper-input>
+        <paper-input class="large" label="Setup Moves" value="{{setup}}"></paper-input>
+        <paper-input class="large" label="Look Moves" value="{{look}}"></paper-input>
+        <paper-input class="large" label="Algorithm" value="{{alg}}"></paper-input>
+      </div>
     </div>
-    <tm-twisty-puzzle id="puzzle" size="4" setup="[[setup]]" moves="[[moves]]"></tm-twisty-puzzle>
   </template>
 
   <script>
@@ -36,33 +69,58 @@
 
       static get properties() {
         return {
+          size: {
+            type:Number,
+            notify:true,
+            reflectToAttribute: true,
+            value:3
+          },
+          powerSaveMode: {
+            type:Boolean,
+            notify:true,
+            reflectToAttribute: true,
+            value:false
+          },
+          algDelay: {
+            type:Number,
+            notify:true,
+            reflectToAttribute: true,
+            value:2000
+          },
+          inspectDelay: {
+            type:Number,
+            notify:true,
+            reflectToAttribute: true,
+            value:2000
+          },
           setup: {
             type: String,
             notify: true,
             reflectToAttribute: true,
             value: "(R R L' L') y (R R L' L') z (R R L' L')"
           },
-          moves: {
+          look: {
             type: String,
             notify: true,
             reflectToAttribute: true,
-            value: "x x x x x y y y z z z z z z"
+            value: "x x' x' x y y' y' y z z' z' z"
+          },
+          alg: {
+            type: String,
+            notify: true,
+            reflectToAttribute: true,
+            value: "R U R' F' R U R' U' R' F R R U' R'"
           }
         }
       }
       _reset() {
         this.$.puzzle.reset();
       }
+      _look() {
+        this.$.puzzle.inspectCube();
+      }
       _run() {
         this.$.puzzle.run();
-      }
-      _message(fav) {
-        if (fav) {
-          return 'You really like me!';
-        }
-        else {
-          return 'Do you like me?';
-        }
       }
     }
     customElements.define(DemoElement.is, DemoElement);

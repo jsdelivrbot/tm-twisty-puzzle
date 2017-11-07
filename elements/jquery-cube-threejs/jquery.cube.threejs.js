@@ -27,6 +27,7 @@ $.fn.cube = function(options) {
     var _cube = [];
     var _pivot = null;
 
+    _ref.powerSaveMode = 1;
     _ref.executionComplete = 0;
 
     //extend default options
@@ -52,7 +53,7 @@ $.fn.cube = function(options) {
         ],
         background: 0x1D1F20,
         animation: {
-            delay: 250
+            delay: 1000
         },
         onTurn: $.noop,
         onComplete: $.noop
@@ -61,6 +62,11 @@ $.fn.cube = function(options) {
     _ref.pause = function() {
       console.log('Pausing rendering function');
       //_ref.executionComplete = 1;
+    }
+
+    _ref.setPowerSaveMode = function(powerSaveMode) {
+      console.log('Changing power save mode: ' + powerSaveMode);
+      _ref.powerSaveMode = (powerSaveMode ? 1 : 0);
     }
 
     _ref.delay = function(delay) {
@@ -585,6 +591,10 @@ $.fn.cube = function(options) {
             _pivot.add(this);
         })
 
+
+        var delay = options.animation.delay;
+        console.log('TURN DURATION: ', delay);
+
         //animate turn
         $({rotation: _pivot.rotation[property]}).animate(
             {
@@ -595,7 +605,8 @@ $.fn.cube = function(options) {
                 step: function(now){
                     _pivot.rotation[property] = now;
                 },
-                duration: options.animation.delay,
+                duration: delay,
+                //duration: 1000,
                 complete: function(){
                     orientCubits(cubits);
 
@@ -625,7 +636,10 @@ $.fn.cube = function(options) {
           console.log('Restarting rendering function');
 
           _ref.executionComplete = 0;
-          render()
+
+    //      if (_ref.powerSaveMode === 1) {
+            render()
+    //      }
         }
 
         if(!ms)
@@ -881,7 +895,7 @@ $.fn.cube = function(options) {
     // },3000);
     //method for handling rendering
     function render(){
-      if (_ref.executionComplete === 0) {
+      if (_ref.powerSaveMode === 0 || _ref.executionComplete === 0) {
         //console.log('Rendering... ');
         requestAnimationFrame(render);
         _renderer.render(_scene, _camera);
@@ -1141,7 +1155,7 @@ $.fn.cube = function(options) {
         if(_ref.data("moves")){
             setTimeout(function(){
                 _ref.execute(_ref.data("moves"));
-            }, 1000);
+            }, 200);
         }
     }
     constructor();
