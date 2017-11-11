@@ -15,9 +15,12 @@
         border:solid lightgrey 2px;
       }
     </style>
-    <div id="cube" class="cube" data-moves$="[[setup]]"></div>
+    <div class="parent">
+      <div id="cube" class="cube" data-moves$="[[setup]]"></div>
+    </div>
   </template>
 
+<!-- setup: (R R L' L') y (R R L' L') z (R R L' L') -->
   <script>
     class TwistyPuzzle extends Polymer.Element {
       static get is() {
@@ -25,50 +28,41 @@
       }
       static get properties() {
         return {
-          size: {
-            type:Number,
-            notify:true,
-            reflectToAttribute: true,
-            value:3
-          },
-          powerSaveMode: {
-            type:Boolean,
-            notify:true,
-            reflectToAttribute: true,
-            value:1,
-            observer:'_powerSaveModeChanged'
-          },
-          algDelay: {
-            type:Number,
-            notify:true,
-            reflectToAttribute: true,
-            value:1000
-          },
-          inspectDelay: {
-            type:Number,
-            notify:true,
-            reflectToAttribute: true,
-            value:2000
-          },
-          setup: {
-            type: String,
-            notify: true,
-            reflectToAttribute: true,
-            value: "(R R L' L') y (R R L' L') z (R R L' L')"
-          },
-          look: {
-            type: String,
-            notify: true,
-            reflectToAttribute: true,
-            value: "(R R L' L') y (R R L' L') z (R R L' L')"
-          },
-          alg: {
-            type: String,
-            notify: true,
-            reflectToAttribute: true,
-            value: "x x x x x y y y z z z z z z"
-          }
+          goodToGo: {type:Boolean,notify:true,value:false},
+          size: {type:Number,notify:true,reflectToAttribute: true,value:3,observer:'_sizeChanged'},
+          powerSaveMode: {type:Boolean,notify:true,reflectToAttribute: true,value:true,observer:'_powerSaveModeChanged'},
+          algDelay: {type:Number,notify:true,reflectToAttribute: true,value:1000},
+          inspectDelay: {type:Number,notify:true,reflectToAttribute: true,value:2000},
+          setup: {type: String,notify: true,reflectToAttribute: true,value: ""},
+          look: {type: String,notify: true,reflectToAttribute: true,value: ""},
+          alg: {type: String,notify: true,reflectToAttribute: true,value: ""},
+          showFirst: {type:Boolean,notify:true,value:false,reflectToAttribute: true,observer:'_showFirstChanged'},
+          hideString: {type:String,notify:true,value:"1,1,1",reflectToAttribute: true,observer:'_hideStringChanged'},
+          showString: {type:String,notify:true,value:"3,3,2",reflectToAttribute: true,observer:'_showStringChanged'}
         }
+      }
+      _showFirstChanged(showFirst) {
+        if (this.cube) {
+          this.cube.setShowFirst(showFirst);
+        }
+      }
+      _hideStringChanged(hideString) {
+        if (this.cube) {
+          const showMap = generateShowMap(showString,this.size);
+          this.cube.setShowMap(showMap);
+        }
+      }
+      _showStringChanged(hideString) {
+        if (this.cube) {
+          const hideMap = generateShowMap(hideString,this.size);
+          this.cube.setShowMap(hideMap);
+        }
+      }
+      _sizeChanged() {
+        if (this.cube && this.size > 0) {
+          this.cube.setSize(this.size);
+        }
+        if (this.goodToGo === true) this.rebuild();
       }
       _powerSaveModeChanged() {
         if (this.cube) {
@@ -104,12 +98,37 @@
         this.cube.delay(inspectDelay);
         this.cube.execute(this.look);
       }
+      rebuild() {
+        var el = this.shadowRoot.querySelector('#cube');
+        this.cube = $(el).remove();
+        el = $(this.bbb).clone();
+        $(this.aaa).append(el);
+        this._build();
+        // this.cube = $(el).cube({
+        //   type:this.size,
+        //   mask:{
+        //     showFirst:this.showFirst,
+        //     showMap:generateShowMap(this.showString),
+        //     hideMap:generateShowMap(this.hideString)
+        //   },
+        //   animation: {delay: 0},
+        //   background:0xFFFFFF,
+        //   onComplete:function() {
+        //     console.log('Algorithm has completed.');
+        //   }
+        // });
+      }
       _build() {
         var self = this;
         console.log('Creating Cube');
         var el = self.shadowRoot.querySelector('#cube');
         this.cube = $(el).cube({
           type:this.size,
+          mask:{
+            showFirst:this.showFirst,
+            showMap:generateShowMap(this.showString,this.size),
+            hideMap:generateShowMap(this.hideString,this.size)
+          },
           animation: {delay: 0},
           background:0xFFFFFF,
           onComplete:function() {
@@ -120,7 +139,11 @@
 
       ready() {
         super.ready();
+        var el = this.shadowRoot.querySelector('#cube');
+        this.aaa = $(el).parent();
+        this.bbb = $(el).clone();
         this._build();
+        this.goodToGo = true;
       }
       constructor() {
         super();
@@ -128,6 +151,57 @@
     }
 
     customElements.define(TwistyPuzzle.is, TwistyPuzzle);
+
+    //
+    // Static function section
+    //
+
+    // const showFirst = false;
+    // const hideString = "1,1,1";
+    // const showString = "3,3,2";
+    // const showMap = generateShowMap(showString);
+    // const hideMap = generateShowMap(hideString);
+
+    function generateShowMap(locationString,size) {
+      const showMap = {}
+      const axisValueStrings = parseAxisLocationsString(locationString,size);
+      axisValueStrings.forEach(function(axisValueString) {
+        showMap[axisValueString] = true;
+      });
+      return showMap;
+    }
+
+
+    function parseAxisLocationsString(locationString,size) {
+      const locationList = locationString.split(" ");
+      const axisValueStrings = [];
+      locationList.forEach(function(location) {
+        console.log('Location: ' + location);
+        var axisValues = location.split(",");
+        var x = parseInt(axisValues[0])-1;
+        var y = parseInt(axisValues[1])-1;
+        var z = parseInt(axisValues[2])-1;
+        z = size - 1 - z;
+        var axisValueString = x + ',' + y + ',' + z;
+        console.log('AxisValueString: ' + axisValueString);
+        axisValueStrings.push(axisValueString);
+      });
+      return axisValueStrings;
+    }
+
+    function shouldHideColours(showFirst,showMap,hideMap,cubitLocation) {
+      var shouldShow = showFirst;
+
+      if (showMap[cubitLocation] === true) {
+          shouldShow = true;
+      }
+
+      if (hideMap[cubitLocation] === true) {
+        shouldShow = false;
+      }
+
+      return !shouldShow;
+    }
   </script>
 
 </dom-module>

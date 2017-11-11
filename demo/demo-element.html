@@ -5,6 +5,10 @@
 <link rel="import" href="../../paper-input/paper-input.html">
 <link rel="import" href="../../paper-button/paper-button.html">
 <link rel="import" href="../../paper-checkbox/paper-checkbox.html">
+<!-- (R R L' L') y (R R L' L') z (R R L' L') -->
+<!-- the cross: 2,1,2 1,2,2 3,2,2 2,2,1 2,2,3 2,1,1 2,1,2 2,1,3 1,1,2 3,1,2 -->
+<!-- F2L case: 2,1,2 1,2,2 3,2,2 2,2,1 2,2,3 2,1,1 2,1,2 2,1,3 1,1,2 3,1,2 3,1,1 3,2,1 -->
+<!-- F2L setup: R U' R'   alg: R U R'  -->
 
 <dom-module id="demo-element">
   <template>
@@ -22,8 +26,15 @@
         box-sizing: border-box;
         width:50%;
       }
+      .buttons {
+        float:left;
+        display:inline-block;
+        box-sizing: border-box;
+        width:100%;
+        padding-top: 20px;
+      }
       .small {
-        width:50%;
+        width:33%;
       }
       .large {
         width:100%;
@@ -39,20 +50,16 @@
         width:100px;
         float:left;
         display: inline-block;
-        padding:30px 0 0px 10px;
+        padding:10px 0 10px 10px;
       }
     </style>
 
     <h3>Twisty Puzzle</h3>
     <tm-twisty-puzzle id="puzzle" size="[[size]]" power-save-mode="[[powerSaveMode]]"
                       alg-delay="[[algDelay]]" inspect-delay="[[inspectDelay]]"
-                      setup="[[setup]]" look="[[look]]" alg="[[alg]]"></tm-twisty-puzzle>
+                      setup="[[setup]]" look="[[look]]" alg="[[alg]]"
+                      show-first="[[showFirst]]" show-string="[[showString]]" hide-string="[[hideString]]"></tm-twisty-puzzle>
     <div class="controls">
-      <paper-button raised on-click="_reset">Reset</paper-button>
-      <paper-button raised on-click="_look">Look</paper-button>
-      <paper-button raised on-click="_run">Run</paper-button>
-      <paper-button raised on-click="_finish">Finish</paper-button>
-      <paper-checkbox class="small" checked="{{powerSaveMode}}">Power Save</paper-checkbox>
       <div class="inputs">
         <paper-input class="small" label="Size" value="{{size}}" type="number"></paper-input>
         <paper-input class="small" label="Inspect Delay" value="{{inspectDelay}}" type="number"></paper-input>
@@ -60,7 +67,18 @@
         <paper-input class="large" label="Setup Moves" value="{{setup}}"></paper-input>
         <paper-input class="large" label="Look Moves" value="{{look}}"></paper-input>
         <paper-input class="large" label="Algorithm" value="{{alg}}"></paper-input>
+        <paper-checkbox class="small" checked="{{showFirst}}">Show All First</paper-checkbox>
+        <paper-input class="large" label="Show" value="{{showString}}"></paper-input>
+        <paper-input class="large" label="Hide" value="{{hideString}}"></paper-input>
       </div>
+    </div>
+    <div class="buttons">
+      <paper-checkbox class="small" checked="{{powerSaveMode}}">Power Save</paper-checkbox>
+      <paper-button raised on-click="_reset">Reset</paper-button>
+      <paper-button raised on-click="_look">Look</paper-button>
+      <paper-button raised on-click="_run">Run</paper-button>
+      <paper-button raised on-click="_finish">Finish</paper-button>
+      <paper-button raised on-click="_rebuild">Rebuild</paper-button>
     </div>
   </template>
 
@@ -80,7 +98,7 @@
             type:Boolean,
             notify:true,
             reflectToAttribute: true,
-            value:false
+            value:true
           },
           algDelay: {
             type:Number,
@@ -98,7 +116,7 @@
             type: String,
             notify: true,
             reflectToAttribute: true,
-            value: "(R R L' L') y (R R L' L') z (R R L' L')"
+            value: "R U' R'"
           },
           look: {
             type: String,
@@ -110,7 +128,22 @@
             type: String,
             notify: true,
             reflectToAttribute: true,
-            value: "R U R' F' R U R' U' R' F R R U' R'"
+            value: "R U R'"
+          },
+          showFirst: {
+            type:Boolean,
+            notify:true,
+            value:false
+          },
+          hideString: {
+            type:String,
+            notify:true,
+            value:""
+          },
+          showString: {
+            type:String,
+            notify:true,
+            value:"2,1,2 1,2,2 3,2,2 2,2,1 2,2,3 2,1,1 2,1,2 2,1,3 1,1,2 3,1,2 3,1,1 3,2,1"
           }
         }
       }
@@ -125,6 +158,9 @@
       }
       _run() {
         this.$.puzzle.run();
+      }
+      _rebuild() {
+        this.$.puzzle.rebuild();
       }
     }
     customElements.define(DemoElement.is, DemoElement);

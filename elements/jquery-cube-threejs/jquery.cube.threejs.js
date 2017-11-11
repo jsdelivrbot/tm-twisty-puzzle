@@ -29,6 +29,9 @@ $.fn.cube = function(options) {
 
     _ref.powerSaveMode = 1;
     _ref.executionComplete = 0;
+    _ref.showFirst = true;
+    _ref.showMap = {};
+    _ref.hideMap = {};
 
     //extend default options
     options = $.extend(true, {
@@ -64,9 +67,24 @@ $.fn.cube = function(options) {
       //_ref.executionComplete = 1;
     }
 
+    _ref.setShowFirst = function(showFirst) {
+      options.mask.showFirst = showFirst;
+    }
+    _ref.setShowMap = function(showMap) {
+      options.mask.showMap = showMap;
+    }
+    _ref.setHideMap = function(hideMap) {
+      options.mask.hideMap = hideMap;
+    }
     _ref.setPowerSaveMode = function(powerSaveMode) {
       console.log('Changing power save mode: ' + powerSaveMode);
       _ref.powerSaveMode = (powerSaveMode ? 1 : 0);
+    }
+
+    _ref.setSize = function(newSize) {
+      console.log('Changing size: ' + newSize);
+      options.type = newSize;
+      //_ref.reset();
     }
 
     _ref.delay = function(delay) {
@@ -783,9 +801,11 @@ $.fn.cube = function(options) {
 		context.fillStyle = _toHexColor(options.color[options.color.length-1]);
 		context.fillRect(0, 0, width, height);
 
+    const inset = 2;
+
 		//draw cubit face
 		context.fillStyle = _toHexColor(color);
-		_drawRoundRect(1, 1, width-2, height-2, 3);
+		_drawRoundRect(1, 1, width-inset, height-inset, 3);
 
 		//create image from canvas
 		var image = new Image();
@@ -801,22 +821,68 @@ $.fn.cube = function(options) {
 		return texture;
 	}
 
+  // const showFirst = false;
+  // const hideString = "1,1,1";
+  // const showString = "3,3,2";
+  // const showMap = generateShowMap(showString);
+  // const hideMap = generateShowMap(hideString);
+  //
+  // function generateShowMap(locationString) {
+  //   const showMap = {}
+  //   const axisValueStrings = parseAxisLocationsString(locationString);
+  //   axisValueStrings.forEach(function(axisValueString) {
+  //     showMap[axisValueString] = true;
+  //   });
+  //   return showMap;
+  // }
+  //
+  //
+  // function parseAxisLocationsString(locationString) {
+  //   const locationList = locationString.split(" ");
+  //   const size = 3;
+  //   const axisValueStrings = [];
+  //   locationList.forEach(function(location) {
+  //     console.log('Location: ' + location);
+  //     var axisValues = location.split(",");
+  //     var x = parseInt(axisValues[0])-1;
+  //     var y = parseInt(axisValues[1])-1;
+  //     var z = parseInt(axisValues[2])-1;
+  //     z = size - 1 - z;
+  //     var axisValueString = x + ',' + y + ',' + z;
+  //     console.log('AxisValueString: ' + axisValueString);
+  //     axisValueStrings.push(axisValueString);
+  //   });
+  //   return axisValueStrings;
+  // }
+
+  function shouldHideColours(cubitLocation) {
+    var shouldShow = options.mask.showFirst;
+
+    if (options.mask.showMap[cubitLocation] === true) {
+        shouldShow = true;
+    }
+
+    if (options.mask.hideMap[cubitLocation] === true) {
+      shouldShow = false;
+    }
+
+    return !shouldShow;
+  }
+
     //method for creating the cubit
-    function createCubit(point){
+    function createCubit(point, x, y, z){
 
         //create cubit face material
         var materials = [];
         for(var i=0; i<6; i++){
-
+            var cubitLocation = x + ',' + y + ',' + z;
             var color = options.color[i];
-			var texture = colorFaceTexture(32, 32, color);
 
-            var m = new THREE.MeshBasicMaterial(
-				{
-					map: texture,
-					overdraw: 1
-				}
-			);
+            if (shouldHideColours(cubitLocation)) color = 0x2f4f4f;
+
+      			var texture = colorFaceTexture(32, 32, color);
+
+            var m = new THREE.MeshBasicMaterial({map: texture,overdraw: 1});
 
             materials.push(m);
         }
@@ -874,7 +940,7 @@ $.fn.cube = function(options) {
                     point.y = options.cubit.height * (iy - run) + offset;
                     point.z = options.cubit.height * (iz - run) + offset;
 
-                    var cubit = createCubit(point);
+                    var cubit = createCubit(point, ix, iy, iz);
 
                     //optimize non visible cubits
                     if(ix > 0 && ix < options.type-1 &&
